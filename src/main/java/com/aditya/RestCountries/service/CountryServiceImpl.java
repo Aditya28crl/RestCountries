@@ -46,7 +46,7 @@ public class CountryServiceImpl implements CountryService {
 		     Country[] countries = restTemplate.getForObject(RESTCOUNTRIES_API, Country[].class);
 			 
 		     if (countries == null || countries.length == 0) {
-		            throw new CountryDataNotFoundException("No countries found");
+		            throw new CustomException("No countries found","NOT_FOUND",404);
 		        }
 		     
 			 return Arrays.asList(countries);
@@ -60,7 +60,7 @@ public class CountryServiceImpl implements CountryService {
 				Country[] countriesArray = restTemplate.getForObject(RESTCOUNTRIES_API, Country[].class);		        
 				
 				 if (countriesArray == null || countriesArray.length == 0) {
-			            throw new CountryDataNotFoundException("No countries found");
+			            throw new CustomException("No countries found","NOT_FOUND",404);
 			        }
 				
 	             
@@ -70,7 +70,6 @@ public class CountryServiceImpl implements CountryService {
 		        return countries.stream()
 		                .map(country -> {
 		                    
-		                	
 		                	if(country.getArea()==0)
 		                	{
 			                    country.setPopulationDensity(0);
@@ -96,7 +95,7 @@ public class CountryServiceImpl implements CountryService {
 			Country[] countriesArray = restTemplate.getForObject(RESTCOUNTRIES_API, Country[].class);		        
 	        
 			 if (countriesArray == null || countriesArray.length == 0) {
-		            throw new CountryDataNotFoundException("No countries found");
+		            throw new CustomException("No countries found","NOT_FOUND",404);
 		        }
 	        
 			 List<Country> countries = new ArrayList<>();
@@ -106,6 +105,12 @@ public class CountryServiceImpl implements CountryService {
 	        List<Country> asianCountries = countries.stream()
 	                .filter(country -> "Asia".equalsIgnoreCase((String) country.getRegion()))
 	                .collect(Collectors.toList());
+	        
+	        if(asianCountries.isEmpty())
+			 {
+				 throw new CustomException("No Asian region country found","NOT_FOUND",404);
+			 }
+	        
             
 	        int max = 0;
 	        
@@ -130,14 +135,14 @@ public class CountryServiceImpl implements CountryService {
 	            	 
 	            	   if(uniqueCountry.size()>0)
 	            	   {   
-	  	            	 System.out.println(neighborCode + " " + uniqueCountry.get(0).getRegion());
+	  	            	 //System.out.println(neighborCode + " " + uniqueCountry.get(0).getRegion());
 
 	            		   localMax++;
 	            	   }
 	            	 	
 	             }
 	            
-            	System.out.println("local max =" + localMax + "country name= " + asianCountry.getName());
+            	//System.out.println("local max =" + localMax + "country name= " + asianCountry.getName());
 
 	            if(localMax>max)
 	            {
@@ -145,7 +150,7 @@ public class CountryServiceImpl implements CountryService {
 	            
 	            	asianCountryResult= asianCountry;
 	            	
-	            	System.out.println(" max =" + "country name= " + asianCountry.getName());
+	            	//System.out.println(" max =" + "country name= " + asianCountry.getName());
 	            }
 
 
@@ -161,9 +166,9 @@ public class CountryServiceImpl implements CountryService {
 		            .uri("all")
 		            .retrieve()
 		            .onStatus(HttpStatus::is4xxClientError, 
-	                		ClientResponse-> Mono.error(new CustomException("client error",ClientResponse.statusCode().value())) )
+	                		ClientResponse-> Mono.error(new CustomException("client error","Something went wrong",ClientResponse.statusCode().value())) )
 	                .onStatus(HttpStatus::is5xxServerError, 
-	                		ClientResponse-> Mono.error(new CustomException("Internal server error",ClientResponse.statusCode().value())))
+	                		ClientResponse-> Mono.error(new CustomException("Internal server error","Something went wrong",ClientResponse.statusCode().value())))
 		            .bodyToFlux(Country.class)
 		            .doOnError(error -> {
 	                    logger.error("Failed to retrieve country data.", error);
@@ -213,14 +218,14 @@ public class CountryServiceImpl implements CountryService {
 		            	 
 		            	   if(uniqueCountry.size()>0)
 		            	   {   
-		  	            	 System.out.println(neighborCode + " " + uniqueCountry.get(0).getRegion());
+		  	            	 //System.out.println(neighborCode + " " + uniqueCountry.get(0).getRegion());
 
 		            		   localMax++;
 		            	   }
 		            	 	
 		            }
 		            
-	            	System.out.println("local max =" + localMax + "country name= " + asianCountry.getCca3());
+	            	//System.out.println("local max =" + localMax + "country name= " + asianCountry.getCca3());
 
 		            if(localMax>max)
 		            {
@@ -228,7 +233,7 @@ public class CountryServiceImpl implements CountryService {
 		            
 		            	asianCountryResult= asianCountry;
 		            	
-		            	System.out.println(" max =" + "country name= " + asianCountry.getCca3());
+		            	//System.out.println(" max =" + "country name= " + asianCountry.getCca3());
 		            }
   
 		        }
@@ -240,7 +245,7 @@ public class CountryServiceImpl implements CountryService {
 
 		
          
-		/* if i am not using model class */
+		/* when model class is not used */
 //		@Override
 //		public List<Map<String, Object>> getCountriesByPopulationDensity() {
 //			

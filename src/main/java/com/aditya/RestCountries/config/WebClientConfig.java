@@ -2,6 +2,7 @@ package com.aditya.RestCountries.config;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -20,12 +21,16 @@ public class WebClientConfig {
     private static final Logger logger = LogManager.getLogger(WebClientConfig.class);
 
 	
+    
+    @Value("${external.base.url}")
+   	private String base_url;
+    
 	    @Bean
 	    public WebClient webclient() {
 
 	        WebClient webClient = WebClient
 	                .builder()
-	                .baseUrl("https://restcountries.com/v3.1/")
+	                .baseUrl(base_url)
 	                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 	                .filter(logRequest())
 	                .filter(logResponse())
