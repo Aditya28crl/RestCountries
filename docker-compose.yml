@@ -1,0 +1,13 @@
+version: '3'
+services:
+  rest_countries_server:
+    container_name: rest_country_service
+    build:
+            dockerfile: Dockerfile
+    image: 'restcountry_service:latest'
+        
+    ports:
+      - "8080:8080"
+    environment:
+      - external.api.url=https://restcountries.com/v3/all
+     
