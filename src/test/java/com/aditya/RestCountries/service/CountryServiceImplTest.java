@@ -1,6 +1,7 @@
 package com.aditya.RestCountries.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -11,35 +12,50 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.aditya.RestCountries.Model.Country;
+import com.aditya.RestCountries.exceptions.CustomException;
 
 @SpringBootTest
 public class CountryServiceImplTest {
 
-	    @InjectMocks
-	    private CountryServiceImpl countryService;
+	    
 
+	    
+	    
 	    @Mock
 	    private WebClient webClient;
 
 	    @Mock
 	    private RestTemplate restTemplate;
 
-	    @BeforeEach
-	    public void setUp() {
-	        MockitoAnnotations.openMocks(this);
-	    }
-      
+	   
 	    
-	    String URL = "https://restcountries.com/v3/all";
+	    @Value("${external.api.url}")
+		private String RESTCOUNTRIES_API;
+      
+	    @InjectMocks
+	    private CountryServiceImpl countryService ;
+	    
+	    @BeforeEach
+	    public void setup() {
+	    	
+            
+	        System.out.println("RESTCOUNTRIES_API" + RESTCOUNTRIES_API);
+	        ReflectionTestUtils
+	                .setField(countryService ,"RESTCOUNTRIES_API",RESTCOUNTRIES_API );
+	       
+	    }
+	    
+	    String URL = "https://restcountries.com/v3.1/all";
 	    
 	    @Test
-	    public void testGetAllCountries() {
+	    public void test_GetAllCountries_Success() {
 	        
 	    	Country[] mockCountries = {new Country(), new Country()};
 	        when(restTemplate.getForObject(URL,Country[].class)).thenReturn(mockCountries);
@@ -50,7 +66,7 @@ public class CountryServiceImplTest {
 	    }
 
 	    @Test
-	    public void testGetCountriesByPopulationDensity() {
+	    public void test_GetCountriesByPopulationDensity_Success() {
 	        
 	    	Country country1 = new Country();
 	        country1.setArea(100.0);
@@ -75,7 +91,7 @@ public class CountryServiceImplTest {
 	    }
 
 	    @Test
-	    public void testGetAsianCountryWithMaxBorderingCountriesDifferentRegion() {
+	    public void test_GetAsianCountryWithMaxBorderingCountriesDifferentRegion_Success() {
 	       
 	    	Country country1 = new Country();
 	        country1.setCca3("TUR");
@@ -115,5 +131,35 @@ public class CountryServiceImplTest {
 	        assertEquals(country1, asianCountry);
 	    }
 	
+	    
+	    @Test
+	    void test_GetCountriesByPopulationDensity_Not_Found_then_Not_Found() {
+
+	        
+	        when(restTemplate.getForObject(URL,Country[].class)).thenReturn(null);
+
+	        CustomException exception =
+	                assertThrows(CustomException.class,
+	                        () -> countryService.getCountriesByPopulationDensity());
+	        assertEquals("NOT_FOUND", exception.getErrorCode());
+	        assertEquals(404, exception.getStatus());
+
+	        
+	    }
 	
+	    
+	    @Test
+	    void test_GetAsianCountryWithMaxBorderingCountriesDifferentRegion_Not_Found_then_Not_Found() {
+
+	        
+	        when(restTemplate.getForObject(URL,Country[].class)).thenReturn(null);
+
+	        CustomException exception =
+	                assertThrows(CustomException.class,
+	                        () -> countryService.getAsianCountryWithMaxBorderingCountries());
+	        assertEquals("NOT_FOUND", exception.getErrorCode());
+	        assertEquals(404, exception.getStatus());
+
+	        
+	    }
 }

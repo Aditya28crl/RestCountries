@@ -10,4 +10,5 @@ services:
       - "8080:8080"
     environment:
       - external.api.url=https://restcountries.com/v3/all
+      - external.base.url= https://restcountries.com/v3.1/
      
