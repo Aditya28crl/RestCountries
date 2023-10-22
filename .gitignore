@@ -5,6 +5,8 @@ target/
 !**/src/test/**/target/
 
 ### STS ###
+.DS_Store
+/target
 .apt_generated
 .classpath
 .factorypath
