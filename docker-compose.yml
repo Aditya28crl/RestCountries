@@ -9,6 +9,6 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - external.api.url=https://restcountries.com/v3/all
+      - external.api.url=https://restcountries.com/v3.1/all
       - external.base.url= https://restcountries.com/v3.1/
      
